@@ -14,7 +14,7 @@ public class MonClientUDP {
             byte[] envoyees; //tampon d'émission
             byte[] recues = new byte[1024]; // tampon de réception
             // 2 - émettre
-            String message = "Salve !";
+            String message = "HELLO serveur !";
             envoyees = message.getBytes();
             DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseClient, 5555);
             socketClient.send(messageEnvoye);
@@ -22,7 +22,7 @@ public class MonClientUDP {
             DatagramPacket paquetRecu = new DatagramPacket(recues, recues.length);
             socketClient.receive(paquetRecu);
             String reponse = new String(paquetRecu.getData(), 0, paquetRecu.getLength());
-            System.out.println("Depuis le serveur" + reponse);
+            System.out.println("Depuis le serveur: " + reponse);
             //4 - Libérer le canal
             socketClient.close();
         }
