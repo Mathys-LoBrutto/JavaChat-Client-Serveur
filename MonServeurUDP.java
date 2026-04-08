@@ -4,10 +4,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public class MonServeurUDP {
-    static void main(String[] args) {
+    public static void main(String[] args) {
         try {
             // Création du canal
-            DatagramSocket socketServeur = new DatagramSocket();
+            DatagramSocket socketServeur = new DatagramSocket(null);
 
             // Réservation du port
             InetSocketAddress adresse = new InetSocketAddress("localhost", 5555);
@@ -20,12 +20,13 @@ public class MonServeurUDP {
             DatagramPacket paquetRecu = new DatagramPacket(recues, recues.length);
             socketServeur.receive(paquetRecu);
             String message = new String(paquetRecu.getData(), 0, paquetRecu.getLength());
-            System.out.println("Reçu: " + message);
 
-            // Emission d'une réponse
             InetAddress adrClient = paquetRecu.getAddress();
             int prtClient = paquetRecu.getPort();
-            String reponse = "Accusé de réception";
+            System.out.println("Nouveau client : " + adrClient + ":" + prtClient);
+
+            // Emission d'une réponse
+            String reponse = "200 Server ok";
             envoyees = reponse.getBytes();
             DatagramPacket paquetEnvoye = new DatagramPacket(envoyees, envoyees.length, adrClient, prtClient);
             socketServeur.send(paquetEnvoye);
