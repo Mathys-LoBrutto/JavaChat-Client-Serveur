@@ -21,22 +21,20 @@ public class GestionnaireClient implements Runnable {
 	@Override
 	public void run() {
 		// Envoie du message de bienvenue
-		String message = "bienvenue !";
+		String message = this.clientInfo.getPseudo() + " a rejoint le chat" ;
 
 		byte[] envoyees = message.getBytes();
 
 		try {
-			DatagramSocket socketClient = new DatagramSocket();
 
 			for (ClientInfo clientDestinataire : clients.values()) {
 				InetAddress adresseClient = clientDestinataire.adresseIP();
 				int port = clientDestinataire.getPort();
 				DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseClient, port);
 
-				socketClient.send(messageEnvoye);
+				this.socket.send(messageEnvoye);
 			}
 
-			socketClient.close();
 		} catch (Exception e) {
 			System.err.println("Erreur lors de l'envoi du message : " + e.getMessage());
 		}
