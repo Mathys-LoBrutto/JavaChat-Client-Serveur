@@ -37,7 +37,7 @@ public class ServeurChatUDP {
 	/**
 	 *
 	 */
-	public static void main() {
+	public static void main(String[] args) {
 		try {
 			/** Port associé au serveur */
 			final int PORT_SERVEUR = 9000;
@@ -64,7 +64,7 @@ public class ServeurChatUDP {
 					int newPort = newSocket.getLocalPort();
 
 					//notifie le client du port alloué via le message PORT:<n>;
-					String messagePort = "PORT:" + newPort + ";";
+					String messagePort = "PORT:" + newPort;
 					byte[] envoyees = messagePort.getBytes();
 					DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, paquetRecu.getAddress(), paquetRecu.getPort());
 					socketServeur.send(messageEnvoye);
