@@ -28,9 +28,9 @@ public class GestionnaireClient implements Runnable {
 		try {
 			DatagramSocket socketClient = new DatagramSocket();
 
-			for (String pseudo : clients.keySet()) {
-				InetAddress adresseClient = clientInfo.adresseIP();
-				int port = clientInfo.getPort();
+			for (ClientInfo clientDestinataire : clients.values()) {
+				InetAddress adresseClient = clientDestinataire.adresseIP();
+				int port = clientDestinataire.getPort();
 				DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseClient, port);
 
 				socketClient.send(messageEnvoye);
