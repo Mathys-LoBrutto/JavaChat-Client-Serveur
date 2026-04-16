@@ -12,13 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GestionnaireClient implements Runnable {
 
 	/** Informations du client géré */
-	ClientInfo clientInfo;
+	private final ClientInfo clientInfo;
 
 	/** Socket dédiée à la communication avec ce client */
-	DatagramSocket socket;
+	private final DatagramSocket socket;
 
 	/** Map des clients connectés sur le serveur */
-	ConcurrentHashMap<String, ClientInfo> clients;
+	private final ConcurrentHashMap<String, ClientInfo> clients;
 
 	/**
 	 * Constructeur de la classe.
@@ -27,7 +27,7 @@ public class GestionnaireClient implements Runnable {
 	 * @param socket     La socket dédiée à la communication
 	 * @param clients    La map des clients connectés au serveur
 	 */
-	GestionnaireClient(ClientInfo clientInfo, DatagramSocket socket, ConcurrentHashMap<String, ClientInfo> clients) {
+	public GestionnaireClient(ClientInfo clientInfo, DatagramSocket socket, ConcurrentHashMap<String, ClientInfo> clients) {
 		this.clientInfo = clientInfo;
 		this.socket = socket;
 		this.clients = clients;
