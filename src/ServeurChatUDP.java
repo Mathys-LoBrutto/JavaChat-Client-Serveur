@@ -10,18 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ServeurChatUDP {
 
-	/** Port associé au serveur */
-	private final static int PORT_SERVEUR = 9000 ;
+	
 
 	/** Map des clients connectés au serveur */
-	private ConcurrentHashMap<String, ClientInfo> clients;
+	private static ConcurrentHashMap<String, ClientInfo> clients = new ConcurrentHashMap<>();
 
-	/**
-	 * Constructeur de la classe.
-	 */
-	public ServeurChatUDP() {
-		this.clients = new ConcurrentHashMap<>();
-	}
+
 
 	/**
 	 * Recherche le premier port disponible entre deux bornes.
@@ -45,6 +39,9 @@ public class ServeurChatUDP {
 	 */
 	public static void main() {
 		try {
+			/** Port associé au serveur */
+			final int PORT_SERVEUR = 9000;
+
 			// Création de la socket principale
 			DatagramSocket socketServeur = new DatagramSocket(PORT_SERVEUR);
 
@@ -58,10 +55,31 @@ public class ServeurChatUDP {
 				String messageRecu = new String(paquetRecu.getData(), 0, paquetRecu.getLength());
 				String[] messageRecuDecoupe = messageRecu.split(":");
 
-				if (messageRecuDecoupe.length == 2 && messageRecuDecoupe[1].equals("JOIN")) {
-					// Création d'un nouvel utilisateur
+				if (messageRecuDecoupe.length == 2 && messageRecuDecoupe[0].equals("JOIN")) {
 
 					// Recherche d'un port libre
+					DatagramSocket newSocket = new DatagramSocket(0);
+
+					//récupération du numéro du port récuperé.
+					int newPort = newSocket.getLocalPort();
+
+					//notifie le client du port alloué via le message PORT:<n>;
+					String messagePort = "PORT:" + newPort + ";";
+					byte[] envoyees = messagePort.getBytes();
+					DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, paquetRecu.getAddress(), paquetRecu.getPort());
+					socketServeur.send(messageEnvoye);
+
+
+					// Création d'un nouvel utilisateur
+					ClientInfo nouvelleUtilisateur = new ClientInfo(messageRecuDecoupe[1], paquetRecu.getAddress(), paquetRecu.getPort() );
+
+					// enregistrement du client dans le hashmap
+					clients.put(nouvelleUtilisateur.getPseudo(), nouvelleUtilisateur);
+					
+					//démarrer un nouveau gestionnaireClient
+					new Thread(new GestionnaireClient(nouvelleUtilisateur, newSocket, clients)).start();
+
+					
 				}
 			}
 		} catch (Exception e) {

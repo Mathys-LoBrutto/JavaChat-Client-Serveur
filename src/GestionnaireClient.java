@@ -100,6 +100,6 @@ public class GestionnaireClient implements Runnable {
 			socket.close();
 		} catch (Exception e) {
 			System.err.println("Erreur de communication avec " + clientInfo.getPseudo() + " : " + e.getMessage());
-		}
+			}
 	}
 }
