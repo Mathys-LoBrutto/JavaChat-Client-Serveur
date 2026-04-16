@@ -2,6 +2,7 @@ package src;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -10,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ServeurChatUDP {
 
-	
+
 
 	/** Map des clients connectés au serveur */
 	private static ConcurrentHashMap<String, ClientInfo> clients = new ConcurrentHashMap<>();
@@ -71,7 +72,7 @@ public class ServeurChatUDP {
 
 
 					// Création d'un nouvel utilisateur
-					ClientInfo nouvelleUtilisateur = new ClientInfo(messageRecuDecoupe[1], paquetRecu.getAddress(), paquetRecu.getPort() );
+					ClientInfo nouvelleUtilisateur = new ClientInfo(messageRecuDecoupe[1], paquetRecu.getAddress(), paquetRecu.getPort());
 
 					// enregistrement du client dans le hashmap
 					clients.put(nouvelleUtilisateur.getPseudo(), nouvelleUtilisateur);
