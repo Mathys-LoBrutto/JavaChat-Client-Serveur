@@ -96,6 +96,53 @@ public class GestionnaireClient implements Runnable {
 	}
 
 	/**
+	 * Envoie un message privé à l'utilisatateur spécifié dans le message si il existe et si la commande est
+	 * correctement entrée. Sinon, renvoie une erreur au client.
+	 *
+	 * @param commande La commande envoyée par le client.
+	 */
+	private void envoyerMessagePrive(String commande) {
+		try {
+			// découpage de la commande
+			String[] commandeMessagePrive = commande.split(" ", 3);
+			if (commandeMessagePrive.length == 3 && commandeMessagePrive[0].equals("/mp")) {
+				String pseudo = commandeMessagePrive[1];
+
+				// On vérifie que l'utilisateur destinataire existe
+				if (clients.keySet().contains(pseudo)) {
+					// On récupère les infos du destinataire
+					ClientInfo destinataire = clients.get(pseudo);
+
+					// On envoie le message au privé au destinataire
+					byte[] envoyees = ("(mp) " + clientInfo.getPseudo() + " : " + commandeMessagePrive[2]).getBytes();
+					InetAddress adresseClient = destinataire.getAdresseIP();
+					int port = destinataire.getPort();
+					DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseClient, port);
+					socket.send(messageEnvoye);
+				} else {
+					// Si le pseudo n'existe pas, on envoie une erreur au client
+					String message = "Serveur : erreur, l'utilisateur " + commandeMessagePrive[1] + " n'existe pas.";
+					byte[] envoyees = message.getBytes();
+					InetAddress adresseClient = clientInfo.getAdresseIP();
+					int port = clientInfo.getPort();
+					DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseClient, port);
+					socket.send(messageEnvoye);
+				}
+			} else {
+				// La commande n'est pas bonne, on envoie une erreur au client
+				String message = "Serveur : erreur, la commande entrée est incorrecte";
+				byte[] envoyees = message.getBytes();
+				InetAddress adresseClient = clientInfo.getAdresseIP();
+				int port = clientInfo.getPort();
+				DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseClient, port);
+				socket.send(messageEnvoye);
+			}
+		} catch (Exception e) {
+			System.err.println("Erreur lors de l'envoi du message privé : " + e.getMessage());
+		}
+	}
+
+	/**
 	 * Méthode principale du thread.
 	 * - Diffuse un message de bienvenue à tous les autres utilisateurs connectés.
 	 * - Reçoit les messages envoyés par le client associé et les transmets aux autres.
@@ -124,6 +171,10 @@ public class GestionnaireClient implements Runnable {
 				// Envoi de la liste des utilisateurs
 				else if (messageRecu.trim().equalsIgnoreCase("/liste")) {
 					envoyerListeUtilisateurs();
+				}
+				// Envoi d'un message privé
+				else if (messageRecu.startsWith("/mp")) {
+					envoyerMessagePrive(messageRecu);
 				} else {
 					// Envoi du message recu à tous les utilisateurs
 					envoyerMessageUtilisateurs(clientInfo.getPseudo() + " : " + messageRecu, false);
