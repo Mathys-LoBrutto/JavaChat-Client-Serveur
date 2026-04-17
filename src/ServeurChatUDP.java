@@ -23,6 +23,8 @@ public class ServeurChatUDP {
 	 */
 	public static void main(String[] args) {
 		try {
+			System.out.println("Démarrage du serveur...");
+
 			// Port associé au serveur
 			final int PORT_SERVEUR = 9000;
 
@@ -30,6 +32,8 @@ public class ServeurChatUDP {
 			DatagramSocket socketServeur = new DatagramSocket(PORT_SERVEUR);
 
 			byte[] recues = new byte[1024];
+
+			System.out.println("Serveur prêt, en attente de demandes de connexion");
 
 			// Réception des paquets en boucle
 			while (true) {
@@ -41,6 +45,7 @@ public class ServeurChatUDP {
 
 				// Si c'est une demande de connexion
 				if (messageRecuDecoupe.length == 2 && messageRecuDecoupe[0].equals("JOIN")) {
+					System.out.println("Connexion en cours de l'utilisateur : " + messageRecuDecoupe[1] );
 
 					// Recherche d'un port libre
 					DatagramSocket newSocket = new DatagramSocket(0);
@@ -63,6 +68,8 @@ public class ServeurChatUDP {
 
 					//démarrer un nouveau gestionnaireClient
 					new Thread(new GestionnaireClient(nouvelleUtilisateur, newSocket, clients)).start();
+
+					System.out.println("Connexion réussie pour : " + nouvelleUtilisateur.getPseudo());
 				}
 			}
 		} catch (Exception e) {

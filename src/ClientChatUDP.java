@@ -49,12 +49,13 @@ public class ClientChatUDP {
 			DatagramPacket paquetRecu = new DatagramPacket(recues, recues.length);
 			socketClient.receive(paquetRecu);
 			String messageRecu = new String(paquetRecu.getData(), 0, paquetRecu.getLength());
-			System.out.println("Réponse du serveur : " + messageRecu);
+			System.out.println("Serveur : " + messageRecu);
 
 			// récupération du port dédié renvoyé par le serveur
 			String[] reponseDecoupe = messageRecu.split(":");
 			int portDedie = Integer.parseInt(reponseDecoupe[1]);
 
+			System.out.println("Bienvenue sur le chat !");
 
 			// Création d'un Thread d'écoute pour écouter et envoyer des messages en meme temps (le while est bloquant)
 			Thread Ecoute = new Thread(new Runnable() {
@@ -67,7 +68,7 @@ public class ClientChatUDP {
 							socketClient.receive(paquetRecu);
 
 							String messageRecu = new String(paquetRecu.getData(), 0, paquetRecu.getLength());
-							System.out.println("message du serveur : " + messageRecu);
+							System.out.println(messageRecu);
 						}
 					} catch (Exception e) {
 						System.out.print("Fin de la reception des messages"); //car la fermeture du socket va créer une erreur.
@@ -90,6 +91,7 @@ public class ClientChatUDP {
 					break;
 				}
 			}
+			System.out.println("Déconnexion du chat...");
 		} catch (Exception e) {
 			System.err.println("Erreur côté client : " + e.getMessage());
 		}

@@ -70,7 +70,7 @@ public class GestionnaireClient implements Runnable {
 	public void run() {
 		try {
 			// Envoi du message de bienvenue
-			String message = "Bienvenue " + clientInfo.getPseudo() + " !";
+			String message = "Serveur : Bienvenue " + clientInfo.getPseudo() + " !";
 			envoyerMessageAutresUtilisateurs(message);
 
 			byte[] recues = new byte[1024];
@@ -86,11 +86,11 @@ public class GestionnaireClient implements Runnable {
 				if (messageRecu.trim().equalsIgnoreCase("exit")) break;
 
 				// Envoi du message recu à tous les utilisateurs
-				envoyerMessageAutresUtilisateurs(messageRecu);
+				envoyerMessageAutresUtilisateurs(clientInfo.getPseudo() +" : " + messageRecu);
 			}
 
 			// Envoie du message de déconnexion aux autres utilisateurs
-			message = clientInfo.getPseudo() + " a quitté le chat.";
+			message = "Serveur : " + clientInfo.getPseudo() + " a quitté le chat.";
 			envoyerMessageAutresUtilisateurs(message);
 
 			// On retire le client de la map
