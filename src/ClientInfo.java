@@ -2,33 +2,64 @@ package src;
 
 import java.net.InetAddress;
 
+/**
+ * Classe contenant toutes les informations de connexion d'un utilisateur
+ */
 public class ClientInfo {
 
-    private String pseudo;
-    private InetAddress adresseIP;
-    private int port;
+	/**
+	 * Pseudo unique du client.
+	 */
+	private final String pseudo;
 
-    public ClientInfo(String pseudo, InetAddress adresseIP, int port)
-    {
-        this.pseudo = pseudo;
-        this.adresseIP = adresseIP;
-        this.port = port;
+	/**
+	 * Adresse IP du client.
+	 */
+	private final InetAddress adresseIP;
 
-    }
-    
+	/**
+	 * Port utilisé par le client.
+	 */
+	private final int port;
 
-    public String getPseudo()
-    {
-        return this.pseudo;
-    }
+	/**
+	 * Constructeur de la classe.
+	 *
+	 * @param pseudo    pseudo du client
+	 * @param adresseIP adresse IP du client
+	 * @param port      port du client
+	 */
+	public ClientInfo(String pseudo, InetAddress adresseIP, int port) {
+		this.pseudo = pseudo;
+		this.adresseIP = adresseIP;
+		this.port = port;
 
-    public InetAddress adresseIP()
-    {
-        return this.adresseIP;
-    }
+	}
 
-    public int getPort()
-    {
-        return this.port;
-    }
+	/**
+	 * Accesseur pour le pseudo du client
+	 *
+	 * @return le pseudo du client
+	 */
+	public String getPseudo() {
+		return this.pseudo;
+	}
+
+	/**
+	 * Accesseur pour l'adresse IP du client
+	 *
+	 * @return l'adresse IP
+	 */
+	public InetAddress getAdresseIP() {
+		return this.adresseIP;
+	}
+
+	/**
+	 * Accesseur pour le port du client
+	 *
+	 * @return le port du client
+	 */
+	public int getPort() {
+		return this.port;
+	}
 }
