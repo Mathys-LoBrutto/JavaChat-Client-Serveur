@@ -49,7 +49,7 @@ public class GestionnaireClient implements Runnable {
 					continue;
 				}
 
-				InetAddress adresseClient = clientDestinataire.adresseIP();
+				InetAddress adresseClient = clientDestinataire.getAdresseIP();
 				int port = clientDestinataire.getPort();
 				DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseClient, port);
 
