@@ -11,13 +11,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class GestionnaireClient implements Runnable {
 
-	/** Informations du client géré */
+	/**
+	 * Informations du client géré
+	 */
 	private final ClientInfo clientInfo;
 
-	/** Socket dédiée à la communication avec ce client */
+	/**
+	 * Socket dédiée à la communication avec ce client
+	 */
 	private final DatagramSocket socket;
 
-	/** Map des clients connectés sur le serveur */
+	/**
+	 * Map des clients connectés sur le serveur
+	 */
 	private final ConcurrentHashMap<String, ClientInfo> clients;
 
 	/**
@@ -34,18 +40,20 @@ public class GestionnaireClient implements Runnable {
 	}
 
 	/**
-	 * Diffuse un message à tous les clients connectés sauf l'expéditeur du message (le client associé au gestionnaire).
+	 * Diffuse un message à tous les clients connectés sauf l'expéditeur du message (le client associé au gestionnaire)
+	 * si le booléen inclureExpediteur est vrai.
 	 *
-	 * @param message Le message à envoyer aux autres utilisateurs
+	 * @param message           Le message à envoyer aux autres utilisateurs.
+	 * @param inclureExpediteur Si vrai, l'expéditeur recevra aussi le message.
 	 */
-	private void envoyerMessageAutresUtilisateurs(String message) {
+	private void envoyerMessageUtilisateurs(String message, boolean inclureExpediteur) {
 		try {
 			byte[] envoyees = message.getBytes();
 
 			// Parcours de tous les clients
 			for (ClientInfo clientDestinataire : clients.values()) {
 				// Pas d'envoi vers le client associé au gestionnaire
-				if (clientDestinataire.getPseudo().equals(clientInfo.getPseudo())) {
+				if (!inclureExpediteur && clientDestinataire.getPseudo().equals(clientInfo.getPseudo())) {
 					continue;
 				}
 
@@ -71,7 +79,7 @@ public class GestionnaireClient implements Runnable {
 		try {
 			// Envoi du message de bienvenue
 			String message = "Serveur : Bienvenue " + clientInfo.getPseudo() + " !";
-			envoyerMessageAutresUtilisateurs(message);
+			envoyerMessageUtilisateurs(message, true);
 
 			byte[] recues = new byte[1024];
 
@@ -86,12 +94,12 @@ public class GestionnaireClient implements Runnable {
 				if (messageRecu.trim().equalsIgnoreCase("exit")) break;
 
 				// Envoi du message recu à tous les utilisateurs
-				envoyerMessageAutresUtilisateurs(clientInfo.getPseudo() +" : " + messageRecu);
+				envoyerMessageUtilisateurs(clientInfo.getPseudo() + " : " + messageRecu, false);
 			}
 
 			// Envoie du message de déconnexion aux autres utilisateurs
 			message = "Serveur : " + clientInfo.getPseudo() + " a quitté le chat.";
-			envoyerMessageAutresUtilisateurs(message);
+			envoyerMessageUtilisateurs(message, true);
 
 			// On retire le client de la map
 			clients.remove(clientInfo.getPseudo());
@@ -100,6 +108,6 @@ public class GestionnaireClient implements Runnable {
 			socket.close();
 		} catch (Exception e) {
 			System.err.println("Erreur de communication avec " + clientInfo.getPseudo() + " : " + e.getMessage());
-			}
+		}
 	}
 }
