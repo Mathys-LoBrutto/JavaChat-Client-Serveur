@@ -25,35 +25,42 @@ public class ClientChatUDP {
 		try {
 			Scanner sc = new Scanner(System.in);
 
-			// Demande à l'utilisateur son pseudo
-			System.out.println("Veuillez saisir votre pseudo :");
-			String pseudo = sc.nextLine();
-
 			DatagramSocket socketClient = new DatagramSocket();
 
 			// Récupération de l'adresse du serveur
 			InetAddress adresseServeur = InetAddress.getByName("localhost");
-
-			// Envoie du message JOIN:<pseudo> au serveur (port 9000)
-			String messageClient = "JOIN:" + pseudo;
-			byte[] envoyees = messageClient.getBytes();
-			DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseServeur, 9000);
-			socketClient.send(messageEnvoye);
-
-			System.out.println("Demande de connexion envoyée...");
-
-
+			
+			int portDedie = -1;
 			byte[] recues = new byte[1024];
+			
+			while (true) {
+				// Demande à l'utilisateur son pseudo
+				System.out.println("Veuillez saisir votre pseudo :");
+				String pseudo = sc.nextLine();
 
-			// Réception du message par le serveur
-			DatagramPacket paquetRecu = new DatagramPacket(recues, recues.length);
-			socketClient.receive(paquetRecu);
-			String messageRecu = new String(paquetRecu.getData(), 0, paquetRecu.getLength());
-			System.out.println("Serveur : " + messageRecu);
+				// Envoie du message JOIN:<pseudo> au serveur (port 9000)
+				String messageClient = "JOIN:" + pseudo;
+				byte[] envoyees = messageClient.getBytes();
+				DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseServeur, 9000);
+				socketClient.send(messageEnvoye);
 
-			// récupération du port dédié renvoyé par le serveur
-			String[] reponseDecoupe = messageRecu.split(":");
-			int portDedie = Integer.parseInt(reponseDecoupe[1]);
+				System.out.println("Demande de connexion envoyée...");
+
+				// Réception du message par le serveur
+				DatagramPacket paquetRecu = new DatagramPacket(recues, recues.length);
+				socketClient.receive(paquetRecu);
+				String messageRecu = new String(paquetRecu.getData(), 0, paquetRecu.getLength());
+				System.out.println("Serveur : " + messageRecu);
+
+				if (messageRecu.equals("ERROR:PSEUDO_TAKEN")) {
+					System.out.println("Ce pseudo est déjà utilisé. Veuillez en choisir un autre.");
+				} else if (messageRecu.startsWith("PORT:")) {
+					// récupération du port dédié renvoyé par le serveur
+					String[] reponseDecoupe = messageRecu.split(":");
+					portDedie = Integer.parseInt(reponseDecoupe[1]);
+					break;
+				}
+			}
 
 			// Création d'un Thread d'écoute pour écouter et envoyer des messages en meme temps (le while est bloquant)
 			Thread Ecoute = new Thread(new Runnable() {
@@ -79,8 +86,8 @@ public class ClientChatUDP {
 			while (true) {
 				String message = sc.nextLine();
 
-				envoyees = message.getBytes();
-				messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseServeur, portDedie);
+				byte[] envoyees = message.getBytes();
+				DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseServeur, portDedie);
 				socketClient.send(messageEnvoye);
 
 				// Le client veut se déconnecter

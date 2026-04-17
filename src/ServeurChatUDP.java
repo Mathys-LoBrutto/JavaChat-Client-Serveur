@@ -46,30 +46,39 @@ public class ServeurChatUDP {
 				// Si c'est une demande de connexion
 				if (messageRecuDecoupe.length == 2 && messageRecuDecoupe[0].equals("JOIN")) {
 					System.out.println("Connexion en cours de l'utilisateur : " + messageRecuDecoupe[1] );
+					String pseudo = messageRecuDecoupe[1];
 
-					// Recherche d'un port libre
-					DatagramSocket newSocket = new DatagramSocket(0);
+					if (clients.containsKey(pseudo)) {
+						System.out.println("Pseudo refusé (déjà utilisé) : " + pseudo);
+						String messageErreur = "ERROR:PSEUDO_TAKEN";
+						byte[] envoyees = messageErreur.getBytes();
+						DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, paquetRecu.getAddress(), paquetRecu.getPort());
+						socketServeur.send(messageEnvoye);
+					} else {
+						// Recherche d'un port libre
+						DatagramSocket newSocket = new DatagramSocket(0);
 
-					//récupération du numéro du port récuperé.
-					int newPort = newSocket.getLocalPort();
+						//récupération du numéro du port récuperé.
+						int newPort = newSocket.getLocalPort();
 
-					//notifie le client du port alloué via le message PORT:<n>;
-					String messagePort = "PORT:" + newPort;
-					byte[] envoyees = messagePort.getBytes();
-					DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, paquetRecu.getAddress(), paquetRecu.getPort());
-					socketServeur.send(messageEnvoye);
+						//notifie le client du port alloué via le message PORT:<n>;
+						String messagePort = "PORT:" + newPort;
+						byte[] envoyees = messagePort.getBytes();
+						DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, paquetRecu.getAddress(), paquetRecu.getPort());
+						socketServeur.send(messageEnvoye);
 
 
-					// Création d'un nouvel utilisateur
-					ClientInfo nouvelleUtilisateur = new ClientInfo(messageRecuDecoupe[1], paquetRecu.getAddress(), paquetRecu.getPort());
+						// Création d'un nouvel utilisateur
+						ClientInfo nouvelleUtilisateur = new ClientInfo(pseudo, paquetRecu.getAddress(), paquetRecu.getPort());
 
-					// enregistrement du client dans le hashmap
-					clients.put(nouvelleUtilisateur.getPseudo(), nouvelleUtilisateur);
+						// enregistrement du client dans le hashmap
+						clients.put(nouvelleUtilisateur.getPseudo(), nouvelleUtilisateur);
 
-					//démarrer un nouveau gestionnaireClient
-					new Thread(new GestionnaireClient(nouvelleUtilisateur, newSocket, clients)).start();
+						//démarrer un nouveau gestionnaireClient
+						new Thread(new GestionnaireClient(nouvelleUtilisateur, newSocket, clients)).start();
 
-					System.out.println("Connexion réussie pour : " + nouvelleUtilisateur.getPseudo());
+						System.out.println("Connexion réussie pour : " + nouvelleUtilisateur.getPseudo());
+					}
 				}
 			}
 		} catch (Exception e) {
