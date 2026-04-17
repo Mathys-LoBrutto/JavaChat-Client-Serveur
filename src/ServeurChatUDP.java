@@ -2,45 +2,28 @@ package src;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
+ * Classe représentant le serveur de Chat, point d'entrée pour les utilisateurs.
+ * Il récupère les demandes de connexion des clients et leur attribue un thread.
  */
 public class ServeurChatUDP {
-
-
 
 	/** Map des clients connectés au serveur */
 	private static ConcurrentHashMap<String, ClientInfo> clients = new ConcurrentHashMap<>();
 
 
-
 	/**
-	 * Recherche le premier port disponible entre deux bornes.
-	 * @param portMin la borne min
-	 * @param portMax la borne max
-	 * @return port UDP libre
-	 */
-	public static int recherchePortUDPDisponible (int portMin, int portMax) {
-		DatagramSocket socket = null;
-		for (int port = portMin; port <= portMax; port++) {
-			try {
-				socket = new DatagramSocket(port);
-			} catch (SocketException e) {
-			}
-		}
-		return socket.getLocalPort();
-	}
-
-	/**
-	 *
+	 * Méthode principale du serveur.
+	 * - Initilialise le serveur.
+	 * - Attend les demandes de connexion des utilisateurs.
+	 * - Notifie le client de son port attribué.
+	 * - Ajoute l'utilisateur à la map des clients et démarre un thread associé.
 	 */
 	public static void main(String[] args) {
 		try {
-			/** Port associé au serveur */
+			// Port associé au serveur
 			final int PORT_SERVEUR = 9000;
 
 			// Création de la socket principale
@@ -56,6 +39,7 @@ public class ServeurChatUDP {
 				String messageRecu = new String(paquetRecu.getData(), 0, paquetRecu.getLength());
 				String[] messageRecuDecoupe = messageRecu.split(":");
 
+				// Si c'est une demande de connexion
 				if (messageRecuDecoupe.length == 2 && messageRecuDecoupe[0].equals("JOIN")) {
 
 					// Recherche d'un port libre
@@ -76,11 +60,9 @@ public class ServeurChatUDP {
 
 					// enregistrement du client dans le hashmap
 					clients.put(nouvelleUtilisateur.getPseudo(), nouvelleUtilisateur);
-					
+
 					//démarrer un nouveau gestionnaireClient
 					new Thread(new GestionnaireClient(nouvelleUtilisateur, newSocket, clients)).start();
-
-					
 				}
 			}
 		} catch (Exception e) {
