@@ -55,8 +55,6 @@ public class ClientChatUDP {
 			String[] reponseDecoupe = messageRecu.split(":");
 			int portDedie = Integer.parseInt(reponseDecoupe[1]);
 
-			System.out.println("Bienvenue sur le chat !");
-
 			// Création d'un Thread d'écoute pour écouter et envoyer des messages en meme temps (le while est bloquant)
 			Thread Ecoute = new Thread(new Runnable() {
 				@Override
