@@ -69,6 +69,33 @@ public class GestionnaireClient implements Runnable {
 	}
 
 	/**
+	 * Envoie la liste des utilisateurs au client.
+	 */
+	private void envoyerListeUtilisateurs() {
+		try {
+			String message = "Utilisateurs connectés : ";
+
+			// Parcours de tous les clients
+			for (String clientPseudo : clients.keySet()) {
+				message += clientPseudo + ", ";
+			}
+
+			// on enlève la dernière virgule
+			message = message.substring(0, message.length() - 2);
+
+			// On envoie le message au client
+			byte[] envoyees = message.getBytes();
+			InetAddress adresseClient = clientInfo.getAdresseIP();
+			int port = clientInfo.getPort();
+			DatagramPacket messageEnvoye = new DatagramPacket(envoyees, envoyees.length, adresseClient, port);
+
+			socket.send(messageEnvoye);
+		} catch (Exception e) {
+			System.err.println("Erreur lors de l'envoi de la liste des utilisateurs : " + e.getMessage());
+		}
+	}
+
+	/**
 	 * Méthode principale du thread.
 	 * - Diffuse un message de bienvenue à tous les autres utilisateurs connectés.
 	 * - Reçoit les messages envoyés par le client associé et les transmets aux autres.
@@ -91,10 +118,16 @@ public class GestionnaireClient implements Runnable {
 				String messageRecu = new String(paquetRecu.getData(), 0, paquetRecu.getLength());
 
 				// Sortie de la boucle si c'est le message de déconnexion
-				if (messageRecu.trim().equalsIgnoreCase("exit")) break;
-
-				// Envoi du message recu à tous les utilisateurs
-				envoyerMessageUtilisateurs(clientInfo.getPseudo() + " : " + messageRecu, false);
+				if (messageRecu.trim().equalsIgnoreCase("exit")) {
+					break;
+				}
+				// Envoi de la liste des utilisateurs
+				else if (messageRecu.trim().equalsIgnoreCase("/liste")) {
+					envoyerListeUtilisateurs();
+				} else {
+					// Envoi du message recu à tous les utilisateurs
+					envoyerMessageUtilisateurs(clientInfo.getPseudo() + " : " + messageRecu, false);
+				}
 			}
 
 			// Envoie du message de déconnexion aux autres utilisateurs
